@@ -1,3 +1,15 @@
+
+# =====================================================
+# Repaso de la Sesión 1: variables, print() y operaciones
+# Curso de Python — Miguel Núñez
+# Fecha: 14/11/2026
+#Aprendido: Python ejecuta de arriba hacia abajo; una
+# variable debe existir antes de usarse; mayúsculas y
+# minúsculas importan; solo usar paréntesis necesarios.
+# =====================================================
+
+
+
 #Ejercicio 1: Calcular el valor total de una inversión en acciones.
 
 cantidad_de_acciones = 15
