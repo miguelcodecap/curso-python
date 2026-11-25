@@ -1,6 +1,6 @@
 # Recetario · Sesión 4 — Slicing y texto (en curso)
 
-Consulta rápida de lo visto el 18-nov-2026 (parte 1) y el 21-nov-2026 (parte 2). **Sesión en curso:** se completará con `.split()`, `.replace()`, `in` y `len()` en texto cuando se cierre la sesión.
+Consulta rápida de lo visto el 18-nov-2026 (parte 1), el 21-nov-2026 (parte 2) y el 24-nov-2026 (parte 3). **Sesión en curso:** se completará con `.replace()`, `in` y `len()` en texto cuando se cierre la sesión.
 
 ---
 
@@ -313,3 +313,120 @@ ticker = input("¿Cuál es el ticker? ")
 - Números que pueden cambiar, en su propia variable (`cantidad_de_acciones = 25`) y usados en el texto con `{}`.
 - No convertir lo que ya tiene el tipo correcto: `int(25)` sobra.
 - Espacio después de cada coma, también dentro de las f-strings: `{a}, {b}, {c}`.
+
+---
+
+## 9. `.split()`: de texto a lista
+
+**Qué es:** método de texto que **corta** un texto en pedazos y devuelve una **lista** con esos pedazos.
+**Para qué sirve:** separar los tickers que escribe un usuario, o los campos de una línea de registro (fecha, hora, usuario, IP, resultado), para trabajar cada uno por separado con índices.
+
+```python
+tickers = input("Dime tickers ")          # "AAPL MSFT NVDA SCCO BAP"
+tickers_lista = tickers.split()
+print(tickers_lista)                      # ['AAPL', 'MSFT', 'NVDA', 'SCCO', 'BAP']
+```
+
+**Por qué:** un texto es un solo dato; una lista te deja contar, sacar el primero o el último, y recorrer cada elemento.
+
+### Después de separar: lo de listas funciona
+
+```python
+len(tickers_lista)      # 5        → cuántos tickers
+tickers_lista[0]        # 'AAPL'   → el primero
+tickers_lista[-1]       # 'BAP'    → el último
+type(tickers_lista)     # <class 'list'>
+type(tickers)           # <class 'str'>  → el texto original no cambia
+```
+
+**Ojo:**
+- `len(tickers)` sobre el **texto** cuenta **caracteres** (23), no tickers. Usa `len()` sobre la **lista**.
+- `[tickers_lista]` mete la lista dentro de otra lista: `[['AAPL', 'MSFT', ...]]`. `.split()` ya devuelve una lista; no hace falta ponerle corchetes.
+- Guarda la lista en una variable con otro nombre (`tickers_lista`) para no perder el texto original.
+
+### Variante 1: `.split()` sin nada → separa por espacios
+
+Trata **cualquier cantidad** de espacios, tabulaciones o saltos de línea como **un solo** separador, e ignora los de los bordes. Nunca deja `""` vacíos.
+
+```python
+"AAPL  MSFT".split()        # ['AAPL', 'MSFT']
+"  AAPL MSFT  ".split()     # ['AAPL', 'MSFT']
+```
+
+### Variante 2: `.split("separador")` → separa por ese carácter exacto
+
+```python
+linea = "2026-11-24|17:30:45|admin|192.168.1.105|FAILED"
+campos = linea.split("|")
+# ['2026-11-24', '17:30:45', 'admin', '192.168.1.105', 'FAILED']
+
+usuario = campos[2]     # 'admin'
+ip = campos[3]          # '192.168.1.105'
+resultado = campos[-1]  # 'FAILED'
+
+"USD-EUR-PEN-GBP".split("-")   # ['USD', 'EUR', 'PEN', 'GBP']
+"USD,EUR,PEN-GBP".split(",")   # ['USD', 'EUR', 'PEN-GBP']  → solo corta en ","
+```
+
+**Regla:** corta en **cada** aparición del separador. Si hay dos separadores seguidos o uno en un borde, entre ellos no hay nada y queda un `""` (texto vacío):
+
+```python
+"BTC,,ETH".split(",")      # ['BTC', '', 'ETH']
+",SOL,ETH,".split(",")     # ['', 'SOL', 'ETH', '']
+"AAPL  MSFT".split(" ")    # ['AAPL', '', 'MSFT']   (2 espacios = 2 cortes)
+```
+
+**Truco:** cambia mentalmente el separador por una coma y pregúntate qué hay entre cada par de comas.
+
+### `.split()` vs `.split(" ")`
+
+| | Varios espacios seguidos | `""` vacíos |
+| --- | --- | --- |
+| `.split()` | Un solo separador | Nunca aparecen |
+| `.split(" ")` | Corta en **cada** espacio | Sí aparecen |
+
+Para separar palabras, usa `.split()` sin nada. Usa un separador explícito cuando el dato lo trae (`|`, `,`, `-`).
+
+### Encadenar con `.strip()`
+
+`.split(",")` no quita espacios: los pedazos los conservan.
+
+```python
+"  AAPL,MSFT  ".split(",")          # ['  AAPL', 'MSFT  ']
+"  AAPL,MSFT  ".strip().split(",")  # ['AAPL', 'MSFT']
+```
+
+### Limitar los cortes: el número dentro de los paréntesis
+
+Un segundo valor dentro de los paréntesis dice **cuántos cortes** hacer como máximo. Ese número se llama `maxsplit`. Lo que sobra queda junto en el último pedazo.
+
+```python
+fecha = "2026-11-24"
+
+fecha.split("-")       # ['2026', '11', '24']   → corta en todos
+fecha.split("-", 1)    # ['2026', '11-24']      → 1 corte, desde la izquierda
+```
+
+### `.rsplit()`: cortar desde la derecha
+
+Funciona igual que `.split()`, pero **empieza a cortar por la derecha**. Sin número, da lo mismo que `.split()`. La diferencia aparece cuando limitas los cortes:
+
+```python
+fecha.rsplit("-")      # ['2026', '11', '24']   → igual que split
+fecha.rsplit("-", 1)   # ['2026-11', '24']      → 1 corte, desde la derecha
+```
+
+**Para qué sirve:** separar solo lo último sin romper lo demás.
+
+```python
+archivo = "reporte.final.2026.csv"
+archivo.rsplit(".", 1)    # ['reporte.final.2026', 'csv']  → nombre y extensión
+
+correo = "miguel.nunez@bcp.com"
+correo.rsplit("@", 1)     # ['miguel.nunez', 'bcp.com']    → usuario y dominio
+```
+
+| | Sin número | Con número (`, 1`) |
+| --- | --- | --- |
+| `.split()` | Corta en todos | Corta desde la **izquierda** |
+| `.rsplit()` | Corta en todos (igual que split) | Corta desde la **derecha** |
